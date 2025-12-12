@@ -66,7 +66,7 @@ fun AddContact(navController: NavController,
         }
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = { navController.popBackStack() }) {
-            Text("Back")
+            Text("Atrás")
         }
     }
 }

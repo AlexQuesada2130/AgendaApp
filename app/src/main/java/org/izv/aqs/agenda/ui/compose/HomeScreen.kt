@@ -59,8 +59,7 @@ fun HomeScreen(navController: NavController,
                     }
                 }
             }
-
-            // BLOQUE 2: El botón (SIEMPRE VISIBLE)
+            // BLOQUE 2: El botón
             // Está fuera del if/else para que aparezca aunque no haya contactos
             Button(onClick = { navController.navigate("add-contact") }) {
                 Text("Add Contact")

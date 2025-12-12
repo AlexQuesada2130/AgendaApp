@@ -2,9 +2,11 @@ package org.izv.aqs.agenda.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.izv.aqs.agenda.ui.model.AgendaRepository
 import org.izv.aqs.agenda.ui.model.Contacto
 
@@ -33,25 +35,32 @@ class AgendaViewModel(application: Application) : AndroidViewModel(application) 
 
     // Le dice al repo que lea el archivo y actualiza nuestra lista _uiState
     fun cargarContactos() {
-        _uiState.value = repository.obtenerContactos()
-    }
-
-    fun agregarContacto(nombre: String, telefono: String) {
-        val nuevoContacto = Contacto(nombre, telefono)
-        repository.agregarContacto(nuevoContacto)
-        cargarContactos() // Recargamos la lista para que la UI vea el cambio
-    }
-
-    fun editarContacto(contactoNuevo: Contacto) {
-        // contactoSeleccionado es el "viejo", contactoNuevo es el editado
-        contactoSeleccionado?.let { viejo ->
-            repository.editarContacto(viejo, contactoNuevo)
-            cargarContactos()
+        // Lanzamos una corrutina en el scope del ViewModel
+        viewModelScope.launch {
+            _uiState.value = repository.obtenerContactos()
         }
     }
 
+    fun agregarContacto(nombre: String, telefono: String) {
+        viewModelScope.launch {
+            val nuevoContacto = Contacto(nombre, telefono)
+            repository.agregarContacto(nuevoContacto)
+            cargarContactos() // Recargamos la lista tras la operación
+        }
+    }
+
+    fun editarContacto(contactoNuevo: Contacto) {
+        viewModelScope.launch {
+            contactoSeleccionado?.let { viejo ->
+                repository.editarContacto(viejo, contactoNuevo)
+                cargarContactos()
+            }
+        }
+    }
     fun eliminarContacto(contacto: Contacto) {
-        repository.eliminarContacto(contacto)
-        cargarContactos()
+        viewModelScope.launch {
+            repository.eliminarContacto(contacto)
+            cargarContactos()
+        }
     }
 }
